@@ -8,6 +8,8 @@ class Santa
 {
     protected $heading;
     protected $position;
+    protected $firstIntersectingPosition;
+    protected $movementLog = [];
 
     /**
      * Santa constructor.
@@ -18,6 +20,8 @@ class Santa
     {
         $this->heading = $heading;
         $this->position = $position;
+
+        $this->checkForIntersect($position);
     }
 
     public function executeInstruction($instruction)
@@ -48,24 +52,42 @@ class Santa
         return $this->position;
     }
 
+    public function getFirstIntersectingPosition()
+    {
+        return $this->firstIntersectingPosition;
+    }
+
     public function moveNorth($units)
     {
-        ($this->position)["y"] += $units;
+        foreach(range(1, $units) as $i) {
+            ($this->position)["y"] += 1;
+            $this->checkForIntersect($this->position);
+        }
     }
 
     public function moveSouth($units)
     {
-        ($this->position)["y"] -= $units;
+        foreach(range(1, $units) as $i) {
+            ($this->position)["y"]--;
+            $this->checkForIntersect($this->position);
+        }
+
     }
 
     public function moveEast($units)
     {
-        ($this->position)["x"] += $units;
+        foreach(range(1, $units) as $i) {
+            ($this->position)["x"]++;
+            $this->checkForIntersect($this->position);
+        }
     }
 
     public function moveWest($units)
     {
-        ($this->position)["x"] -= $units;
+        foreach(range(1, $units) as $i) {
+            ($this->position)["x"]--;
+            $this->checkForIntersect($this->position);
+        }
     }
 
     public function rotateHeadingL()
@@ -106,5 +128,21 @@ class Santa
         }
 
         return $this->heading;
+    }
+
+    private function checkForIntersect($position)
+    {
+        if (!$this->firstIntersectingPosition) {
+            $positionKey = json_encode($position);
+            if (!array_key_exists($positionKey, $this->movementLog)) {
+                $this->movementLog[$positionKey] = 0;
+            }
+
+            $this->movementLog[$positionKey]++;
+
+            if ($this->movementLog[$positionKey] > 1) {
+                $this->firstIntersectingPosition = $position;
+            }
+        }
     }
 }

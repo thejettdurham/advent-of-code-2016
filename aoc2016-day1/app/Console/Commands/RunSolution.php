@@ -27,7 +27,10 @@ class RunSolution extends Command
         $blocks = abs($finalPosition["x"]) + abs($finalPosition["y"]);
         $this->info("Blocks to destination = $blocks");
 
-        //dd($santa);
+        $firstIntersectPosition = $santa->getFirstIntersectingPosition();
+
+        $firstIntersectBlocks = abs($firstIntersectPosition["x"]) + abs($firstIntersectPosition["y"]);
+        $this->info("First intersection point is $firstIntersectBlocks blocks away from start");
     }
 
     private function parseDirections() : array

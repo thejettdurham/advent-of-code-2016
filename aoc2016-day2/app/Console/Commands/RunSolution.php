@@ -4,43 +4,45 @@
 namespace App\Console\Commands;
 
 
+use App\Part1ControlPanel;
+use App\Part2ControlPanel;
 use Illuminate\Console\Command;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class RunSolution extends Command
 {
     protected $signature = "run";
     protected $description = "Parses the input from a file and returns the result";
-    protected $currentRow = 1;
-    protected $currentCol = 1;
-    protected $controlPanel = [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9]
-    ];
-
-    protected $inputSequence = [];
 
     public function fire()
     {
         $instructions = $this->parseInputFromFile();
 
-        //dd($instructions);
+        $part1Panel = new Part1ControlPanel(1, 1);
+        $part1Input = [];
+
+        $part2Panel = new Part2ControlPanel(2,0);
+        $part2Input = [];
 
         foreach ($instructions as $key => $instruction) {
             foreach(str_split($instruction) as $move)
             {
                 $instructionMethod = "move$move";
-                if (method_exists($this, $instructionMethod)) {
-                    $this->$instructionMethod();
+                if (method_exists($part1Panel, $instructionMethod)) {
+                    $part1Panel->$instructionMethod();
+                }
+                if (method_exists($part2Panel, $instructionMethod)) {
+                    $part2Panel->$instructionMethod();
                 }
             }
-            $this->recordInput();
+            $part1Input[] = $part1Panel->getPresentButton();
+            $part2Input[] = $part2Panel->getPresentButton();
         }
 
-        $stringInputSequence = implode($this->inputSequence);
+        $part1InputStr = implode($part1Input);
+        $part2InputStr = implode($part2Input);
 
-        $this->info("Input sequence is $stringInputSequence");
+        $this->info("Part 1 Input sequence is $part1InputStr");
+        $this->info("Part 2 Input sequence is $part2InputStr");
     }
 
     /**
@@ -50,38 +52,5 @@ class RunSolution extends Command
     {
         $inputs = trim(file_get_contents("input.txt"));
         return explode("\n", $inputs);
-    }
-
-    protected function moveU()
-    {
-        if (array_key_exists($this->currentRow - 1, $this->controlPanel)) {
-            $this->currentRow--;
-        }
-    }
-
-    protected function moveD()
-    {
-        if (array_key_exists($this->currentRow + 1, $this->controlPanel)) {
-            $this->currentRow++;
-        }
-    }
-
-    protected function moveL()
-    {
-        if (array_key_exists($this->currentCol - 1, $this->controlPanel[$this->currentRow])) {
-            $this->currentCol--;
-        }
-    }
-
-    protected function moveR()
-    {
-        if (array_key_exists($this->currentCol + 1, $this->controlPanel[$this->currentRow])) {
-            $this->currentCol++;
-        }
-    }
-
-    private function recordInput()
-    {
-        $this->inputSequence[] = $this->controlPanel[$this->currentRow][$this->currentCol];
     }
 }

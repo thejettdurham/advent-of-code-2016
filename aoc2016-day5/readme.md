@@ -19,8 +19,11 @@ I developed and tested this solution in Homestead, Laravel's provided Vagrant bo
 And assuming you're using the default `.env` provided in-repo:
 
 `touch database/database.sqlite`
+
 `php artisan migrate` to initialize the failed jobs table
+
 `php artisan runBatches` to begin processing workload in background
+
 `tail -f storage/logs/lumen.log` to monitor progress.
 
 When processing is complete `php artisan runBatches` will immediately return with the calculated values.

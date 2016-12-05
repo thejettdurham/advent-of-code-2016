@@ -18,14 +18,18 @@ I developed and tested this solution in Homestead, Laravel's provided Vagrant bo
 
 And assuming you're using the default `.env` provided in-repo:
 
-`touch database/database.sqlite`
-
-`php artisan migrate` to initialize the failed jobs table
-
-`php artisan runBatches` to begin processing workload in background
-
-`tail -f storage/logs/lumen.log` to monitor progress.
+- `touch database/database.sqlite`
+- `php artisan migrate` to initialize the failed jobs table
+- `php artisan runBatches` to begin processing workload in background
+- `tail -f storage/logs/lumen.log` to monitor progress.
 
 When processing is complete `php artisan runBatches` will immediately return with the calculated values.
 
 To reprocess the given input string, clear the cache as so: `php artisan cache:clear --tags="aoc-day5"`
+
+## Performance Tuning
+
+The `runBatches` command can accept two options to tune performance in your runtime environment
+
+- `--batchSize=####`: Customize size of batch to run on each job (default 1000)
+- `--workers=##`: Number of concurrent processes on which to run the workload (default 10)

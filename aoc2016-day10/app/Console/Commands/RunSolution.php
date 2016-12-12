@@ -30,7 +30,7 @@ class RunSolution extends Command
             preg_match_all("#$valueGoesToBotPattern#", $instruction, $matches);
             if (!empty($matches[0])) {
                 $this->bots[$matches[2][0]][] = (int)$matches[1][0];
-                asort($this->bots[$matches[2][0]]);
+                sort($this->bots[$matches[2][0]]);
                 $i++;
             } else {
                 break;
@@ -55,37 +55,36 @@ class RunSolution extends Command
             $instruction = $indexedBotGivesInstructions[$twoChipBotWithInstruction];
             unset($indexedBotGivesInstructions[$twoChipBotWithInstruction]);
 
-            // execute instruction
+            $botGivesPattern = "bot\s(\d+)\sgives\slow\sto\s(\w+)\s(\d+)\sand\shigh\sto\s(\w+)\s(\d+)";
+            preg_match_all("#$botGivesPattern#", $instruction, $matches);
+
+            if (!empty($matches[0])) {
+                $lowReciever = $matches[2][0];
+                $highReciever = $matches[4][0];
+
+                if ($lowReciever === "bot") {
+                    $this->bots[$matches[3][0]][] = $this->bots[$twoChipBotWithInstruction][0];
+                    sort($this->bots[$matches[3][0]]);
+                } else {
+                    $this->outputs[$matches[3][0]] = $this->bots[$twoChipBotWithInstruction][0];
+                }
+
+                if ($highReciever === "bot") {
+                    $this->bots[$matches[5][0]][] = $this->bots[$twoChipBotWithInstruction][1];
+                    sort($this->bots[$matches[5][0]]);
+                } else {
+                    $this->outputs[$matches[5][0]] = $this->bots[$twoChipBotWithInstruction][1];
+                }
+            }
         }
 
+        ksort($this->outputs);
+        ksort($this->bots);
 
-
-
-
-//            $botGivesPattern = "bot\s(\d+)\sgives\slow\sto\s(\w+)\s(\d+)\sand\shigh\sto\s(\w+)\s(\d+)";
-//            preg_match_all("#$botGivesPattern#", $instruction, $matches);
-//            if (!empty($matches[0])) {
-//                $lowReciever = $matches[2][0];
-//                $highReciever = $matches[4][0];
-//                if ($lowReciever === "bot") {
-//                    $bots[$matches[3][0]][] = $bots[$matches[1][0]][0];
-//                    asort($bots[$matches[3][0]]);
-//                } else {
-//                    $outputs[$matches[3][0]] = $bots[$matches[1][0]][0];
-//                }
-//
-//                if ($highReciever === "bot") {
-//                    $bots[$matches[5][0]][] = $bots[$matches[1][0]][1];
-//                    asort($bots[$matches[5][0]]);
-//                } else {
-//                    $outputs[$matches[5][0]] = $bots[$matches[1][0]][1];
-//                }
-//            }
-        ksort($outputs);
-        ksort($bots);
-
-        $this->info("Part 1: ");
-        $this->info("Part 2: ");
+        $part1bot = array_search([17,61], $this->bots);
+        $part2num = array_product(array_slice($this->outputs, 0, 3));
+        $this->info("Part 1: $part1bot compares value 17 and 61 chips");
+        $this->info("Part 2: $part2num is the product of the first three outputs");
     }
 
     protected function parseInput($file)
